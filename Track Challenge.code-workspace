@@ -1,17 +1,29 @@
 {
-	"folders": [
-		{
-			"name": "Root",
-			"path": "."
-		},
-		{
-			"name": "Backend",
-			"path": "backend"
-		},
-		{
-			"name": "Frontend",
-			"path": "frontend"
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "name": "Root",
+      "path": "."
+    },
+    {
+      "name": "Backend",
+      "path": "backend"
+    },
+    {
+      "name": "Frontend",
+      "path": "frontend"
+    }
+  ],
+  "settings": {},
+  "extensions": {
+    "recommendations": [
+      "ms-azuretools.vscode-docker",
+      "mikestead.dotenv",
+      "dbaeumer.vscode-eslint",
+      "ecmel.vscode-html-css",
+      "mtxr.sqltools",
+      "mtxr.sqltools-driver-pg",
+      "svelte.svelte-vscode",
+      "bradlc.vscode-tailwindcss"
+    ]
+  }
 }
