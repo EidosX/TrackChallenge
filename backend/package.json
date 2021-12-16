@@ -3,6 +3,7 @@
     "@graphile-contrib/pg-simplify-inflector": "^6.1.0",
     "db-migrate-pg": "^1.2.2",
     "dotenv": "^10.0.0",
+    "graphile-utils": "^4.12.2",
     "postgraphile": "^4.12.5"
   },
   "main": "src/server.js",
