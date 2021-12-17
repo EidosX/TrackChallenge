@@ -36,11 +36,15 @@ begin
 end
 $$ language plpgsql volatile;
 
-create function tc.get_my_id() returns int as $$
+create function tc.get_my_id() returns int as $$ 
   select current_setting('user.id', true)::int;
 $$ language sql stable;
-comment on function tc.get_my_id() is 'Returns the current user id. Useful for testing.';
 
 create function tc.get_my_user() returns tc.users as $$
   select * from tc.users where user_id = tc.get_my_id();
 $$ language sql stable;
+
+create function tc.delete_my_user() returns tc.users as $$
+  delete from tc.users where user_id = tc.get_my_id() returning *;
+$$ language sql volatile;
+comment on function tc.delete_my_user() is 'THIS OPERATION IS IRREVERSIBLE. No confirmation needed when calling the API directly.';
