@@ -36,13 +36,24 @@ begin
 end
 $$ language plpgsql volatile;
 
-create function tc.get_my_id() returns int as $$ 
+create function tc.get_my_id_or_null() returns int as $$
   select current_setting('user.id', true)::int;
 $$ language sql stable;
+
+create function tc.get_my_id() returns int as $$ 
+begin
+  if tc.get_my_id_or_null() is null then
+    raise exception 'You are not logged in';
+  end if;
+  return tc.get_my_id_or_null();
+end;
+$$ language plpgsql stable;
+comment on function tc.get_my_id() is 'Returns the current user ID, or raises an exception if not logged in.';
 
 create function tc.get_my_user() returns tc.users as $$
   select * from tc.users where user_id = tc.get_my_id();
 $$ language sql stable;
+comment on function tc.get_my_user() is 'Returns the current user, or raises an exception if not logged in.';
 
 create function tc.delete_my_user() returns tc.users as $$
   delete from tc.users where user_id = tc.get_my_id() returning *;
