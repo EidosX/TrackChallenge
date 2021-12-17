@@ -3,7 +3,16 @@ const OAuth2Strategy = require("passport-oauth").OAuth2Strategy;
 const request = require("request");
 const { pool } = require("../pgDb");
 
+function upsertTwitchUser({ twitch_id, twitch_nickname, name, bio }, callback) {
+  pool.query(
+    "select user_id from tc_priv.upsert_twitch_user($1, $2, $3, $4)",
+    [twitch_id, twitch_nickname, name, bio],
+    (err, res) => callback(err, res)
+  );
+}
+
 module.exports = {
+  upsertTwitchUser,
   setupTwitchAPIAuth: (app) => {
     OAuth2Strategy.prototype.userProfile = function (accessToken, done) {
       var options = {
@@ -36,22 +45,19 @@ module.exports = {
           state: true,
         },
         function (accessToken, refreshToken, profile, done) {
-          profile.accessToken = accessToken;
-          profile.refreshToken = refreshToken;
-
           const name = profile.data[0].display_name;
           const bio = profile.data[0].description ?? "";
           const twitch_id = profile.data[0].id;
           const twitch_nickname = profile.data[0].login;
 
-          pool.query(
-            "select '' from tc_priv.upsert_twitch_user($1, $2, $3, $4)",
-            [twitch_id, twitch_nickname, name, bio],
-            (err, res) => {
-              if (err) return console.error(err);
-            }
-          );
-          done(null, profile);
+          upsertTwitchUser({ twitch_id, twitch_nickname, name, bio }, (err, res) => {
+            if (err) return done(err, null);
+            return done(null, {
+              id: res.rows[0].user_id,
+              accessToken,
+              refreshToken,
+            });
+          });
         }
       )
     );
