@@ -4,7 +4,9 @@
     "db-migrate-pg": "^1.2.2",
     "dotenv": "^10.0.0",
     "graphile-utils": "^4.12.2",
-    "postgraphile": "^4.12.5"
+    "pg": "^8.7.1",
+    "postgraphile": "^4.12.5",
+    "tmi.js": "^1.8.5"
   },
   "main": "src/server.js",
   "scripts": {

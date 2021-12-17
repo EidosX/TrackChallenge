@@ -26,20 +26,38 @@ as $$
 declare
   session_id text;
 begin
-  insert into tc_private.session (id, duration) values (md5(random()::text), '10 minutes') 
+  insert into tc_private.session (id, duration) values (md5(random()::text), interval '10 minutes') 
   returning id into session_id;
   return session_id;
 end
 $$ language plpgsql volatile security definer;
 
 create function tc_private.associate_session(
-  session_id text, user_id int, long_live boolean) returns void
-as $$
+  session_id text, _twitch_name text, _twitch_id text
+) returns tc.user as $$
+declare
+  user tc.user;
+  _user_id int;
 begin
-  update tc_private.session 
-  set user_id = user_id,
-      created = now(),
-      duration = case when long_live then '1 month' else '1 hour 30 minutes' end
+  insert into tc.user (twitch_name, twitch_id, rank) 
+  values (_twitch_name, _twitch_id, 'user')
+  on conflict (twitch_id) do nothing;
+  select * into user from tc.user where twitch_id = _twitch_id;
+
+  update tc_private.session
+  set (user_id, created, duration) = ("user".id, now(), interval '1 hour 30 minutes' )
   where id = nullif(session_id, '');
+  return user;
 end
-$$ language plpgsql volatile security definer;
+$$ language plpgsql volatile;
+
+create function tc_private.clear_expired_sessions() returns trigger
+as $$  
+begin
+  delete from tc_private.session where created + duration < now();
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger tc_private_clear_expired_sessions_T1 after insert on tc_private.session
+execute procedure tc_private.clear_expired_sessions();

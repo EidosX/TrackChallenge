@@ -6,18 +6,14 @@ const PgSimplifyInflectorPlugin = require("@graphile-contrib/pg-simplify-inflect
 
 const port = process.env.PORT ?? 3000;
 
-const pgDb = process.env.PG_DB ?? "tc";
-const pgPort = process.env.PG_PORT ?? 5432;
-const pgHost = process.env.PG_HOST ?? "localhost";
-const pgGraphileUser = "admin";
-const pgGraphilePassword = process.env.PG_GRAPHILE_PASSWORD;
-
-const pgConnStr = `postgres://${pgGraphileUser}:${pgGraphilePassword}@${pgHost}:${pgPort}/${pgDb}`;
+require("./twitchbot");
+const AuthCode = require("./schema_ext/authcode");
+const { pool } = require("./pgDb");
 
 http
   .createServer(
-    postgraphile(pgConnStr, "tc", {
-      appendPlugins: [PgSimplifyInflectorPlugin],
+    postgraphile(pool, "tc", {
+      appendPlugins: [AuthCode.plugin, PgSimplifyInflectorPlugin],
       graphqlRoute: "/graphql",
       graphiqlRoute: "/graphiql",
       watchPg: true,
