@@ -14,6 +14,13 @@ create table tc.twitch_infos (
   twitch_nickname text not null
 );
 
+create function rank_value(_rank tc.rank) returns int as $$
+  select case _rank when 'user'  then 0
+                    when 'admin' then 1
+                    when 'dev'   then 2
+                    else -1 end
+$$ language sql immutable;
+
 create function tc_priv.upsert_twitch_user(
   _twitch_id int, _twitch_nickname text, _name text, _bio text)
 returns tc.users as $$
