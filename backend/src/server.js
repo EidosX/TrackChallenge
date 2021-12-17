@@ -4,16 +4,14 @@ const http = require("http");
 const { postgraphile } = require("postgraphile");
 const PgSimplifyInflectorPlugin = require("@graphile-contrib/pg-simplify-inflector");
 
-const port = process.env.PORT ?? 3000;
+const port = process.env.PORT ?? 4000;
 
-require("./twitchbot");
-const AuthCode = require("./schema_ext/authcode");
 const { pool } = require("./pgDb");
 
 http
   .createServer(
     postgraphile(pool, "tc", {
-      appendPlugins: [AuthCode.plugin, PgSimplifyInflectorPlugin],
+      appendPlugins: [PgSimplifyInflectorPlugin],
       graphqlRoute: "/graphql",
       graphiqlRoute: "/graphiql",
       watchPg: true,
