@@ -1,32 +1,36 @@
 require("dotenv").config();
 
-const http = require("http");
 const { postgraphile } = require("postgraphile");
 const PgSimplifyInflectorPlugin = require("@graphile-contrib/pg-simplify-inflector");
+const express = require("express");
+const session = require("express-session");
+const passport = require("passport");
 
 const port = process.env.PORT ?? 4000;
 
 const { pool } = require("./pgDb");
+const { setupTwitchAPIAuth } = require("./auth/twitch-api-auth");
 
-http
-  .createServer(
-    postgraphile(pool, "tc", {
-      appendPlugins: [PgSimplifyInflectorPlugin],
-      graphqlRoute: "/graphql",
-      graphiqlRoute: "/graphiql",
-      watchPg: true,
-      graphiql: true,
-      enhanceGraphiql: true,
-      ignoreRBAC: false,
-      disableDefaultMutations: true,
-    })
-  )
-  .listen(port, () => () => {
-    const address = server.address();
-    if (typeof address !== "string") {
-      const href = `http://localhost:${address.port}${options.graphiqlRoute || "/graphiql"}`;
-      console.log(`PostGraphiQL available at ${href} 🚀`);
-    } else {
-      console.log(`PostGraphile listening on ${address} 🚀`);
-    }
-  });
+const app = express();
+app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+setupTwitchAPIAuth(app);
+
+app.use(
+  postgraphile(pool, "tc", {
+    appendPlugins: [PgSimplifyInflectorPlugin],
+    graphqlRoute: "/graphql",
+    graphiqlRoute: "/graphiql",
+    watchPg: true,
+    graphiql: true,
+    enhanceGraphiql: true,
+    ignoreRBAC: false,
+    disableDefaultMutations: true,
+  })
+);
+const server = app.listen(port, () => {
+  const href = `http://localhost:${port}/graphiql`;
+  console.log(`PostGraphiQL available at ${href} 🚀`);
+});
