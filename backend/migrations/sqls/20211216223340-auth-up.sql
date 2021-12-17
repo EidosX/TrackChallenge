@@ -9,13 +9,13 @@ create table tc_private.session (
 create function tc.session_user(session_id text) returns tc.user
 as $$
 declare
-  sess tc_private.session;
+  _user_id integer;
   user tc.user;
 begin
-  select user_id into sess
+  select user_id into _user_id
   from tc_private.session 
   where id = nullif(session_id, '') and created + duration > now();
-  select * into user from tc.user where id = sess.user_id;
+  select * into user from tc.user where id = _user_id;
   return user;
 end
 $$ language plpgsql stable security definer;
