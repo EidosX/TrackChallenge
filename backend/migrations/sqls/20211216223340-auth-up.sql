@@ -14,7 +14,7 @@ declare
 begin
   select user_id into sess
   from tc_private.session 
-  where id = nullif(session_id, '') and created + duration < now();
+  where id = nullif(session_id, '') and created + duration > now();
   select * into user from tc.user where id = sess.user_id;
   return user;
 end
