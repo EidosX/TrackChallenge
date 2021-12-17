@@ -35,3 +35,12 @@ begin
   return _user;
 end
 $$ language plpgsql volatile;
+
+create function tc.get_my_id() returns int as $$
+  select current_setting('user.id', true)::int;
+$$ language sql stable;
+comment on function tc.get_my_id() is 'Returns the current user id. Useful for testing.';
+
+create function tc.get_my_user() returns tc.users as $$
+  select * from tc.users where user_id = tc.get_my_id();
+$$ language sql stable;

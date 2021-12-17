@@ -28,6 +28,9 @@ app.use(
     enhanceGraphiql: true,
     ignoreRBAC: false,
     disableDefaultMutations: true,
+    pgSettings: async (req) => ({
+      "user.id": req.session?.passport?.user?.id,
+    }),
   })
 );
 const server = app.listen(port, () => {
