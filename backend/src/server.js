@@ -1,9 +1,7 @@
-require("dotenv").config();
-
-const { postgraphile } = require("postgraphile");
-const PgSimplifyInflectorPlugin = require("@graphile-contrib/pg-simplify-inflector");
-const express = require("express");
-const { pool } = require("./pgDb");
+import { postgraphile } from "postgraphile";
+import PgSimplifyInflectorPlugin from "@graphile-contrib/pg-simplify-inflector";
+import express from "express";
+import { pool } from "./pgDb.js";
 
 const app = express();
 app.use(
