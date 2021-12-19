@@ -44,7 +44,7 @@ end
 $$ language plpgsql volatile;
 
 create function tc.get_my_id_or_null() returns int as $$
-  select current_setting('user.id', true)::int;
+  select nullif(current_setting('user.id', true), '')::int;
 $$ language sql stable;
 
 create function tc.get_my_id() returns int as $$ 

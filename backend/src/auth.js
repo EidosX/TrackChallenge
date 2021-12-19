@@ -85,7 +85,21 @@ export const TwitchChallengeCodeCallbackRoute = async (req, res) => {
     .createHash("sha1")
     .update(pubKey + hashSecret)
     .digest("base64");
-  const encryptedSessionId = CryptoJS.AES.encrypt("sessionId", "priv").toString();
+  const encryptedSessionId = CryptoJS.AES.encrypt(sessionId, priv).toString();
   const urlEncSessId = encodeURIComponent(encryptedSessionId);
   res.redirect(`${process.env.AUTH_SUCCESS_REDIRECT}#encrypted_session_id=${urlEncSessId}`);
+};
+
+export const userMiddleware = async (req, res, next) => {
+  const sessionId = req.headers?.authorization;
+  if (!sessionId) return next();
+
+  const sessionUserId = (
+    await pool.query("select user_id from tc_priv.sessions where session_id = $1", [sessionId])
+  ).rows[0]?.user_id;
+  if (!sessionUserId) return next();
+
+  req.locals ??= {};
+  req.locals.user = { id: sessionUserId };
+  next();
 };

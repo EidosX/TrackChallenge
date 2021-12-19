@@ -8,6 +8,7 @@ console.log("GENERATING");
 console.log();
 
 const app = express();
+app.use(Auth.userMiddleware);
 app.use(
   postgraphile(pool, "tc", {
     appendPlugins: [Auth.GenPubPrivPairPlugin, PgSimplifyInflectorPlugin],
@@ -19,7 +20,7 @@ app.use(
     ignoreRBAC: false,
     disableDefaultMutations: true,
     pgSettings: async (req) => ({
-      user_id: req.locals?.user?.id,
+      "user.id": req.locals?.user?.id,
     }),
   })
 );
