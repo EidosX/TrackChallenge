@@ -18,7 +18,7 @@ export const UserProvider: React.FC = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<CurrentUser>(null);
   const [sessionId, setSessionId] = useContext(SessionIdContext);
 
-  const { data } = useQuery(currentUserQuery, {
+  const { data, error } = useQuery(currentUserQuery, {
     skip: !sessionId,
     context: {
       headers: {
@@ -29,6 +29,9 @@ export const UserProvider: React.FC = ({ children }) => {
   useEffect(() => {
     setCurrentUser(data?.getMyUser as CurrentUser);
   }, [data]);
+  useEffect(() => {
+    if (error?.message === "You are not logged in") setSessionId(null);
+  }, [error]);
   return <UserContext.Provider value={currentUser}>{children}</UserContext.Provider>;
 };
 
