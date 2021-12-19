@@ -1,7 +1,14 @@
 import { makeExtendSchemaPlugin, gql } from "graphile-utils";
 import cryptoRandomString from "crypto-random-string";
 import crypto from "crypto";
+import CryptoJS from "crypto-js";
 import fetch from "node-fetch";
+import { pool } from "./pgDb.js";
+
+const hashSecret = process.env.HASH_SECRET;
+if (!hashSecret || hashSecret.length < 16) {
+  throw new Error("HASH_SECRET must be set to a 16 or more characters string");
+}
 
 export const GenPubPrivPairPlugin = makeExtendSchemaPlugin((build) => {
   return {
@@ -17,10 +24,6 @@ export const GenPubPrivPairPlugin = makeExtendSchemaPlugin((build) => {
     resolvers: {
       Query: {
         generatePubPrivPair: async () => {
-          const hashSecret = process.env.HASH_SECRET;
-          if (!hashSecret || hashSecret.length < 16) {
-            throw new Error("HASH_SECRET must be set to a 16 or more characters string");
-          }
           const pub = cryptoRandomString({ length: 32, type: "base64" });
           const priv = crypto
             .createHash("sha1")
@@ -39,15 +42,50 @@ export const TwitchChallengeCodeCallbackRoute = async (req, res) => {
   const pubKey = req.query?.state;
   if (!pubKey) return res.status(400).json({ message: "No pub key provided" });
 
-  const twitchURL =
+  // Get access token
+  const twitchRes = await fetch(
     `https://id.twitch.tv/oauth2/token` +
-    `?client_id=${process.env.TWITCH_CLIENT_ID}` +
-    `&client_secret=${process.env.TWITCH_SECRET}` +
-    `&code=${code}` +
-    `&state=${pubKey}` +
-    `&grant_type=authorization_code` +
-    `&redirect_uri=${process.env.TWITCH_ACCESS_TOKEN_REDIRECT}`;
-  const twitchRes = await fetch(twitchURL, { method: "POST" }).then((r) => r.json());
-  if (!twitchRes.access_token) return res.status(400).json(twitchRes);
-  res.json({ message: "TODO" }); // TODO
+      `?client_id=${process.env.TWITCH_CLIENT_ID}` +
+      `&client_secret=${process.env.TWITCH_SECRET}` +
+      `&code=${code}` +
+      `&state=${pubKey}` +
+      `&grant_type=authorization_code` +
+      `&redirect_uri=${process.env.AUTH_SUCCESS_REDIRECT}`,
+    { method: "POST" }
+  ).then((r) => r.json());
+  const accessToken = twitchRes?.access_token;
+  if (!accessToken) return res.status(400).json(twitchRes);
+
+  // Get user info
+  const userRes = await fetch("https://api.twitch.tv/helix/users", {
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+      "client-id": process.env.TWITCH_CLIENT_ID,
+    },
+  }).then((r) => r.json());
+  if (!userRes) return res.status(400).json({ message: "Couldn't fetch user data" });
+
+  // Create or get user
+  const userId = (
+    await pool.query("select user_id from tc_priv.upsert_twitch_user($1, $2, $3, $4)", [
+      userRes.data[0].id,
+      userRes.data[0].login,
+      userRes.data[0].display_name,
+      userRes.data[0].description,
+    ])
+  ).rows[0].user_id;
+
+  // Create session
+  const sessionId = (
+    await pool.query("insert into tc_priv.sessions (user_id) values ($1) returning session_id", [
+      userId,
+    ])
+  ).rows[0].session_id;
+  const priv = crypto
+    .createHash("sha1")
+    .update(pubKey + hashSecret)
+    .digest("base64");
+  const encryptedSessionId = CryptoJS.AES.encrypt("sessionId", "priv").toString();
+  const urlEncSessId = encodeURIComponent(encryptedSessionId);
+  res.redirect(`${process.env.AUTH_SUCCESS_REDIRECT}#encrypted_session_id=${urlEncSessId}`);
 };
