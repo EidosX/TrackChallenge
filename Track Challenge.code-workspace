@@ -9,6 +9,10 @@
       "path": "backend"
     },
     {
+      "name": "Database",
+      "path": "db"
+    },
+    {
       "name": "Frontend",
       "path": "frontend"
     }
