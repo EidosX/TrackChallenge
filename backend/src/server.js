@@ -2,11 +2,15 @@ import { postgraphile } from "postgraphile";
 import PgSimplifyInflectorPlugin from "@graphile-contrib/pg-simplify-inflector";
 import express from "express";
 import { pool } from "./pgDb.js";
+import { GenPubPrivPairPlugin } from "./auth.js";
+
+console.log("GENERATING");
+console.log();
 
 const app = express();
 app.use(
   postgraphile(pool, "tc", {
-    appendPlugins: [PgSimplifyInflectorPlugin],
+    appendPlugins: [GenPubPrivPairPlugin, PgSimplifyInflectorPlugin],
     graphqlRoute: "/graphql",
     graphiqlRoute: "/graphiql",
     watchPg: true,
