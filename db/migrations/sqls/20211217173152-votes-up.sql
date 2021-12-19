@@ -23,7 +23,7 @@ create table tc_priv.votes (
 
 -- used to identify participations when showing anonymous results
 create table tc_priv.participation_hashs (
-  participation_id int primary key references tc.participations (participation_id),
+  participation_id int primary key references tc.participations (participation_id) on delete cascade,
   unique_hash text not null unique default md5(random()::text) 
 );
 
