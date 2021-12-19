@@ -3,11 +3,10 @@ import PgSimplifyInflectorPlugin from "@graphile-contrib/pg-simplify-inflector";
 import express from "express";
 import { pool } from "./pgDb.js";
 import * as Auth from "./auth.js";
-
-console.log("GENERATING");
-console.log();
+import cors from "cors";
 
 const app = express();
+app.use(cors());
 app.use(Auth.userMiddleware);
 app.use(
   postgraphile(pool, "tc", {

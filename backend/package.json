@@ -2,6 +2,7 @@
   "type": "module",
   "dependencies": {
     "@graphile-contrib/pg-simplify-inflector": "^6.1.0",
+    "cors": "^2.8.5",
     "crypto-js": "^4.1.1",
     "crypto-random-string": "^4.0.0",
     "dotenv": "^10.0.0",
