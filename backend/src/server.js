@@ -2,7 +2,7 @@ import { postgraphile } from "postgraphile";
 import PgSimplifyInflectorPlugin from "@graphile-contrib/pg-simplify-inflector";
 import express from "express";
 import { pool } from "./pgDb.js";
-import { GenPubPrivPairPlugin } from "./auth.js";
+import * as Auth from "./auth.js";
 
 console.log("GENERATING");
 console.log();
@@ -10,7 +10,7 @@ console.log();
 const app = express();
 app.use(
   postgraphile(pool, "tc", {
-    appendPlugins: [GenPubPrivPairPlugin, PgSimplifyInflectorPlugin],
+    appendPlugins: [Auth.GenPubPrivPairPlugin, PgSimplifyInflectorPlugin],
     graphqlRoute: "/graphql",
     graphiqlRoute: "/graphiql",
     watchPg: true,
@@ -23,6 +23,9 @@ app.use(
     }),
   })
 );
+
+app.get("/auth/twitch/challenge_code_callback", Auth.TwitchChallengeCodeCallbackRoute);
+
 const port = process.env.PORT ?? 4000;
 const server = app.listen(port, () => {
   const href = `http://localhost:${port}/graphiql`;
