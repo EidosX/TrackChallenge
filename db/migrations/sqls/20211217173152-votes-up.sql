@@ -133,3 +133,15 @@ begin
   group by P.participation_id;
 end
 $$ language plpgsql stable security definer;
+
+create function tc_priv.check_no_self_vote() returns trigger as $$
+begin
+  if NEW.voter_id = (select user_id from tc.participations where participation_id = NEW.participation_id) then
+    raise exception 'Self vote';
+  end if;
+  return NEW;
+end
+$$ language plpgsql;
+
+CREATE TRIGGER no_self_vote_trigger BEFORE INSERT OR UPDATE ON tc_priv.votes
+FOR EACH ROW EXECUTE PROCEDURE tc_priv.check_no_self_vote();
