@@ -1,7 +1,15 @@
+create type tc.poll_state as enum (
+  'submissions', -- Can submit, not listen
+  'votes',       -- Can listen and vote
+  'ended',       -- Can no longer vote
+  'published'    -- Can see results
+);
+
 create table tc.polls (
   poll_id serial primary key,
   creator_id int not null references tc.users (user_id) on delete cascade,
-  finished boolean not null default false
+  state tc.poll_state not null default 'submissions',
+  votes_end timestamptz not null default now() + interval '5 minutes'
 );
 
 create table tc.participations (
@@ -112,7 +120,7 @@ declare
   _current_user tc.users;
 begin
   select * into _current_user from tc.get_my_user();
-  if not _poll.finished
+  if not _poll.state = 'published'
      and rank_value(_current_user.rank) < rank_value('admin')
      and _poll.creator_id <> _current_user.user_id
   then raise exception 'You are not allowed to see results yet'; end if;

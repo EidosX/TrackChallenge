@@ -9,3 +9,4 @@ drop table tc_priv.participation_hashs;
 drop table tc_priv.votes;
 drop table tc.participations;
 drop table tc.polls;
+drop type tc.poll_state;
