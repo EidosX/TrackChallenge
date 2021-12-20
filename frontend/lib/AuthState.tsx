@@ -20,7 +20,8 @@ export const LoginUrlProvider: React.FC = ({ children }) => {
   let loginUrl = "";
   if (data) {
     const { priv, pub } = data.generatePubPrivPair;
-    if (typeof window !== "undefined") localStorage.setItem("backend_privkey", priv);
+    localStorage.setItem("backend_privkey", priv);
+    localStorage.setItem("prev_href", window.location.href);
 
     loginUrl =
       `https://id.twitch.tv/oauth2/authorize` +
@@ -41,26 +42,25 @@ export const SessionIdProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     // Pull session id from local storage
-    if (typeof window !== "undefined") {
-      setSessionId(localStorage.getItem("session_id"));
-    }
-    // If we were redirected from the backend auth route, we decrypt the session id
-    if (typeof window !== "undefined") {
-      const fragments = new URLSearchParams(window.location.hash.substring(1));
-      const encSessId = fragments.get("encrypted_session_id");
-      const priv = localStorage.getItem("backend_privkey");
+    setSessionId(localStorage.getItem("session_id"));
 
-      if (encSessId && priv) {
-        window.location.hash = "";
-        const sessId = CryptoJS.AES.decrypt(decodeURIComponent(encSessId), priv).toString(
-          CryptoJS.enc.Utf8
-        );
-        if (!sessId) {
-          console.error("Could not decrypt session id");
-          setSessionId(null);
-        } else {
-          setSessionId(sessId);
-        }
+    // If we were redirected from the backend auth route, we decrypt the session id
+    const fragments = new URLSearchParams(window.location.hash.substring(1));
+    const encSessId = fragments.get("encrypted_session_id");
+    const priv = localStorage.getItem("backend_privkey");
+
+    if (encSessId && priv) {
+      window.location.hash = "";
+      const prevHref = localStorage.getItem("prev_href");
+      if (prevHref) window.location.href = prevHref;
+      const sessId = CryptoJS.AES.decrypt(decodeURIComponent(encSessId), priv).toString(
+        CryptoJS.enc.Utf8
+      );
+      if (!sessId) {
+        console.error("Could not decrypt session id");
+        setSessionId(null);
+      } else {
+        setSessionId(sessId);
       }
     }
   }, []);
