@@ -14,6 +14,11 @@ create table tc.twitch_infos (
   twitch_nickname text not null
 );
 
+create table tc.banner_images (
+  user_id int primary key references tc.users(user_id) on delete cascade,
+  image_url text not null
+);
+
 create function rank_value(_rank tc.rank) returns int as $$
   select case _rank when 'user'  then 0
                     when 'admin' then 1
@@ -66,3 +71,7 @@ create function tc.delete_my_user() returns tc.users as $$
   delete from tc.users where user_id = tc.get_my_id() returning *;
 $$ language sql volatile;
 comment on function tc.delete_my_user() is 'THIS OPERATION IS IRREVERSIBLE. No confirmation needed when calling the API directly.';
+
+create function tc.delete_my_banner_image() returns tc.banner_images as $$
+  delete from tc.banner_images where user_id = tc.get_my_id() returning *;
+$$ language sql volatile;
