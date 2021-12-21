@@ -22,7 +22,7 @@ const LeftPanel = () => {
         <Participant name="HeroicProd" twitchNickname="heroicprod" />
         <Participant name="Eidos" twitchNickname="eidosmusic" />
         <Participant name="Zipojama" twitchNickname="zipojama" />
-        <Participant name="Hito" twitchNickname="hitosurtwitch" />
+        <Participant name="Hito" twitchNickname="hitoooooooooooooooooooo" />
         <Participant name="Jack Jones" twitchNickname="jackjones" />
         <Participant name="Kisem" twitchNickname="kisemmusic" />
         <Participant name="Clayne" twitchNickname="clayneoff" />
