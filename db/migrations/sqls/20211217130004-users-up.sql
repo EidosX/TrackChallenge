@@ -62,6 +62,10 @@ end;
 $$ language plpgsql stable;
 comment on function tc.get_my_id() is 'Returns the current user ID, or raises an exception if not logged in.';
 
+create function tc.get_my_user_or_null() returns tc.users as $$
+  select * from tc.users where user_id = tc.get_my_id_or_null();
+$$ language sql stable;
+
 create function tc.get_my_user() returns tc.users as $$
   select * from tc.users where user_id = tc.get_my_id();
 $$ language sql stable;

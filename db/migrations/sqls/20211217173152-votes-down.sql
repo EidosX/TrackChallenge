@@ -1,6 +1,6 @@
 drop trigger no_self_vote_trigger ON tc_priv.votes;
 drop function tc_priv.check_no_self_vote;
-drop function tc.polls_results;
+drop function tc.participations_results;
 drop function tc.polls_anonymous_results;
 drop function tc.vote_for;
 drop function tc.delete_participation;

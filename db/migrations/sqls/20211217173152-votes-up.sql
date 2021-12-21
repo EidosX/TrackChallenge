@@ -107,33 +107,29 @@ create function tc.polls_anonymous_results(_poll tc.polls) returns table (
   unique_hash text,
   votes int
 ) as $$
-  select unique_hash, count(voter_id) as votes
+  select unique_hash, coalesce(count(voter_id)::int, 0) as votes
   from tc_priv.participation_hashs 
   join tc.participations using (participation_id)
   left join tc_priv.votes using (participation_id)
   where participations.poll_id = _poll.poll_id
-  group by unique_hash;
+  group by unique_hash
+  order by unique_hash;
 $$ language sql stable security definer;
 
-create function tc.polls_results(_poll tc.polls) returns table (
-  participation_id int,
-  votes int
-) as $$
+create function tc.participations_results(_participation tc.participations) returns int as $$
 declare
   _current_user tc.users;
+  _poll tc.polls;
 begin
-  select * into _current_user from tc.get_my_user();
-  if not _poll.state = 'published'
+  select * into _poll from tc.polls where poll_id = _participation.poll_id;
+  select * into _current_user from tc.get_my_user_or_null();
+  if _poll.state <> 'published'
      and rank_value(_current_user.rank) < rank_value('admin')
-     and _poll.creator_id <> _current_user.user_id
+     and coalesce(_poll.creator_id <> _current_user.user_id, true)
   then raise exception 'You are not allowed to see results yet'; end if;
   
-  return query
-  select P.participation_id as participation_id, count(voter_id)::int as votes
-  from tc.participations P
-  left join tc_priv.votes using (participation_id)
-  where P.poll_id = _poll.poll_id
-  group by P.participation_id;
+  return (select coalesce(count(voter_id)::int, 0)
+          from tc_priv.votes where participation_id = _participation.participation_id);
 end
 $$ language plpgsql stable security definer;
 
