@@ -3,9 +3,9 @@ import type { AppProps } from "next/app";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { gqlEndpoint } from "../lib/Options";
 import Head from "next/head";
-import { useCheckAfterLoginRedirectEffect } from "../lib/UseTwitchLoginUrl";
-import { SessionProvider } from "../lib/SessionCtx";
-import { CurrentUserProvider } from "../lib/CurrentUserCtx";
+import { useCheckAfterLoginRedirectEffect } from "../lib/auth/UseTwitchLoginUrl";
+import { SessionProvider } from "../lib/auth/SessionCtx";
+import { CurrentUserProvider } from "../lib/auth/CurrentUserCtx";
 
 const apolloClient = new ApolloClient({
   uri: gqlEndpoint,

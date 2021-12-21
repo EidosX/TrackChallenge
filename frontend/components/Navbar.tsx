@@ -1,5 +1,5 @@
-import { useCurrentUser } from "../lib/CurrentUserCtx";
-import { useTwitchLogin } from "../lib/UseTwitchLoginUrl";
+import { useCurrentUser } from "../lib/auth/CurrentUserCtx";
+import { useTwitchLogin } from "../lib/auth/UseTwitchLoginUrl";
 
 export default () => {
   const currentUser = useCurrentUser();

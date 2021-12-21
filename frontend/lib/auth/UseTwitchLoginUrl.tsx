@@ -1,6 +1,6 @@
 import { gql, useApolloClient } from "@apollo/client";
 import { useEffect } from "react";
-import { challengeCodeCallbackURL, clientId } from "./Options";
+import { challengeCodeCallbackURL, clientId } from "../Options";
 import CryptoJS from "crypto-js";
 import { useSession } from "./SessionCtx";
 
