@@ -3,7 +3,7 @@ import PageCenter from "../../components/PageCenter";
 import { PollParticipation, usePoll } from "../../lib/polls/UsePoll";
 import { useRouter } from "next/router";
 import { LeftPanel } from "../../components/polls/LeftPanel";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { HeaderPanel } from "../../components/polls/HeaderPanel";
 
 export interface PollPageState {
@@ -13,10 +13,6 @@ export interface PollPageState {
 
 export default () => {
   const [state, setState] = useState<PollPageState>({ state: "results" });
-  useEffect(() => {
-    console.log(state);
-  }, [state]);
-
   const boxStyle = "rounded-3xl backdrop-blur-md shadow-md shadow-slate-900";
   const router = useRouter();
   const pollId = parseInt(router.query.id as string);
