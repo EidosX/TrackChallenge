@@ -94,8 +94,7 @@ export const TwitchChallengeCodeCallbackRoute = async (req, res) => {
   const encryptedSessionId = CryptoJS.AES.encrypt(sessionId, priv).toString();
   const urlEncSessId = encodeURIComponent(encryptedSessionId);
   const redirectUrl = state?.redirect ?? process.env.AUTH_SUCCESS_REDIRECT;
-  const separator = redirectUrl.includes("#") ? "&" : "#";
-  res.redirect(`${redirectUrl}${separator}encrypted_session_id=${urlEncSessId}`);
+  res.redirect(`${redirectUrl}#&encrypted_session_id=${urlEncSessId}`);
 };
 
 export const userMiddleware = async (req, res, next) => {
