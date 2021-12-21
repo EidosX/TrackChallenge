@@ -39,8 +39,14 @@ export const GenPubPrivPairPlugin = makeExtendSchemaPlugin((build) => {
 export const TwitchChallengeCodeCallbackRoute = async (req, res) => {
   const code = req.query?.code;
   if (!code) return res.status(400).json({ message: "No code provided" });
-  const pubKey = req.query?.state;
-  if (!pubKey) return res.status(400).json({ message: "No pub key provided" });
+  let state;
+  try {
+    state = JSON.parse(decodeURIComponent(req.query?.state));
+  } catch (e) {
+    return res.status(400).json({ message: "Invalid JSON state" });
+  }
+  const pub = state?.pub;
+  if (!pub) return res.status(400).json({ message: "No pub key provided" });
 
   // Get access token
   const twitchRes = await fetch(
@@ -48,9 +54,9 @@ export const TwitchChallengeCodeCallbackRoute = async (req, res) => {
       `?client_id=${process.env.TWITCH_CLIENT_ID}` +
       `&client_secret=${process.env.TWITCH_SECRET}` +
       `&code=${code}` +
-      `&state=${pubKey}` +
       `&grant_type=authorization_code` +
-      `&redirect_uri=${process.env.AUTH_SUCCESS_REDIRECT}`,
+      `&redirect_uri=${process.env.AUTH_SUCCESS_REDIRECT}` +
+      `&state=${req.query?.state}`,
     { method: "POST" }
   ).then((r) => r.json());
   const accessToken = twitchRes?.access_token;
@@ -83,11 +89,13 @@ export const TwitchChallengeCodeCallbackRoute = async (req, res) => {
   ).rows[0].session_id;
   const priv = crypto
     .createHash("sha1")
-    .update(pubKey + hashSecret)
+    .update(pub + hashSecret)
     .digest("base64");
   const encryptedSessionId = CryptoJS.AES.encrypt(sessionId, priv).toString();
   const urlEncSessId = encodeURIComponent(encryptedSessionId);
-  res.redirect(`${process.env.AUTH_SUCCESS_REDIRECT}#encrypted_session_id=${urlEncSessId}`);
+  const redirectUrl = state?.redirect ?? process.env.AUTH_SUCCESS_REDIRECT;
+  const separator = redirectUrl.includes("#") ? "&" : "#";
+  res.redirect(`${redirectUrl}${separator}encrypted_session_id=${urlEncSessId}`);
 };
 
 export const userMiddleware = async (req, res, next) => {
