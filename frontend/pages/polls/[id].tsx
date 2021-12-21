@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { LeftPanel } from "../../components/polls/LeftPanel";
 import { useState } from "react";
 import { HeaderPanel } from "../../components/polls/HeaderPanel";
+import { MainPanel } from "../../components/polls/MainPanel";
 
 export interface PollPageState {
   current?: PollParticipation;
@@ -32,10 +33,12 @@ export default () => {
           />
         </div>
         <div className="flex flex-col gap-3 basis-2/3">
-          <div className={`h-32 bg-blue-800 ${boxStyle}`}>
+          <div className={`h-32 bg-blue-800 ${boxStyle} ${state.current ? "" : "hidden"}`}>
             <HeaderPanel state={state} />
           </div>
-          <div className={`grow bg-slate-900 bg-opacity-50 ${boxStyle}`}>{/* <MainPanel /> */}</div>
+          <div className={`grow bg-slate-900 bg-opacity-50 ${boxStyle}`}>
+            <MainPanel pageState={state} poll={poll.data} />
+          </div>
         </div>
       </div>
     </PageCenter>

@@ -3,6 +3,7 @@ import { log } from "console";
 import { useEffect } from "react";
 
 export interface Poll {
+  id: number;
   name: string;
   state: PollState;
   creator: {
@@ -29,12 +30,7 @@ export interface PollParticipation {
   };
 }
 
-export enum PollState {
-  "SUBMISSIONS",
-  "VOTES",
-  "ENDED",
-  "PUBLISHED",
-}
+export type PollState = "SUBMISSIONS" | "VOTES" | "ENDED" | "PUBLISHED";
 
 export interface UsePollRet {
   data: Poll | null;
@@ -55,6 +51,7 @@ export const usePoll = (pollId: number, { skip }): UsePollRet => {
   return {
     loading: false,
     data: {
+      id: pollId,
       name: data.poll.name,
       state: data.poll.state,
       creator: data.poll.creator,
