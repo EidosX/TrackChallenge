@@ -1,9 +1,11 @@
 import Navbar from "../../components/Navbar";
 import PageCenter from "../../components/PageCenter";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import { usePoll, UsePollRet } from "../../lib/polls/UsePoll";
+import { useRouter } from "next/router";
 
-const LeftPanel = () => {
-  const Participant = ({ name, twitchNickname }) => {
+const LeftPanel = ({ poll }: { poll: UsePollRet }) => {
+  const Participation = ({ name, twitchNickname }) => {
     return (
       <div className="cursor-pointer flex h-16 text-slate-900 items-center">
         <div className="">
@@ -17,16 +19,15 @@ const LeftPanel = () => {
 
   return (
     <div className="mx-2 my-7 absolute inset-0 flex flex-col">
-      <h3 className="px-6 text-xl font-bold mb-4 drop-shadow-md">Participants</h3>
+      <h3 className="px-6 text-xl font-bold mb-4 drop-shadow-md">{poll.data?.name ?? "..."}</h3>
       <div className="overflow-auto px-6">
-        <Participant name="HeroicProd" twitchNickname="heroicprod" />
-        <Participant name="Eidos" twitchNickname="eidosmusic" />
-        <Participant name="Zipojama" twitchNickname="zipojama" />
-        <Participant name="Hito" twitchNickname="hitoooooooooooooooooooo" />
-        <Participant name="Jack Jones" twitchNickname="jackjones" />
-        <Participant name="Kisem" twitchNickname="kisemmusic" />
-        <Participant name="Clayne" twitchNickname="clayneoff" />
-        <Participant name="Jeremouille" twitchNickname="jeremouille" />
+        {poll.data?.participations.map((p) => (
+          <Participation
+            key={p.participationId}
+            name={p.user.name}
+            twitchNickname={p.user.twitchInfo.twitchNickname}
+          />
+        ))}
       </div>
     </div>
   );
@@ -42,11 +43,16 @@ const MainPanel = () => {
 
 export default () => {
   const boxStyle = "rounded-3xl backdrop-blur-md shadow-md shadow-slate-900";
+  const router = useRouter();
+  const pollId = parseInt(router.query.id as string);
+  if (!pollId) return <h1 className="text-6xl">Invalid Poll ID</h1>;
+  const poll = usePoll(pollId);
+
   return (
     <PageCenter header={<Navbar />}>
       <div className="relative flex gap-4 h-[32rem] w-screen max-w-4xl px-6">
         <div className={`basis-1/3 bg-blue-50 bg-opacity-50  ${boxStyle}`}>
-          <LeftPanel />
+          <LeftPanel poll={poll} />
         </div>
         <div className="flex flex-col gap-3 basis-2/3">
           <div className={`h-32 bg-blue-800 ${boxStyle}`}>
