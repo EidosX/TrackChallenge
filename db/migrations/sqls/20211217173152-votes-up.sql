@@ -7,6 +7,7 @@ create type tc.poll_state as enum (
 
 create table tc.polls (
   poll_id serial primary key,
+  name text not null,
   creator_id int not null references tc.users (user_id) on delete cascade,
   state tc.poll_state not null default 'submissions',
   votes_end timestamptz not null default now() + interval '5 minutes'
@@ -35,8 +36,10 @@ create table tc_priv.participation_hashs (
   unique_hash text not null unique default md5(random()::text) 
 );
 
-create function tc.create_poll() returns tc.polls as $$
-  insert into tc.polls (creator_id) values (tc.get_my_id()) returning *;
+create function tc.create_poll(_name text) returns tc.polls as $$
+  insert into tc.polls (creator_id, name) 
+  values (tc.get_my_id(), _name) 
+  returning *;
 $$ language sql volatile;
 
 create function tc.delete_poll(_poll_id int) returns tc.polls as $$
