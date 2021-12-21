@@ -41,8 +41,8 @@ export interface UsePollRet {
   loading: boolean;
 }
 
-export const usePoll = (pollId: number): UsePollRet => {
-  const { data, loading, error, refetch } = useQuery(pollQuery, { variables: { pollId } });
+export const usePoll = (pollId: number, { skip }): UsePollRet => {
+  const { data, loading, error, refetch } = useQuery(pollQuery, { variables: { pollId }, skip });
   useEffect(() => {
     const interval = setInterval(() => {
       if (data) refetch();
@@ -50,7 +50,7 @@ export const usePoll = (pollId: number): UsePollRet => {
     return () => clearInterval(interval);
   }, [data]);
 
-  if (loading) return { data: null, loading };
+  if (!data) return { data: null, loading };
 
   return {
     loading: false,

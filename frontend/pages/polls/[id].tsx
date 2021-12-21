@@ -45,8 +45,8 @@ export default () => {
   const boxStyle = "rounded-3xl backdrop-blur-md shadow-md shadow-slate-900";
   const router = useRouter();
   const pollId = parseInt(router.query.id as string);
-  if (!pollId) return <h1 className="text-6xl">Invalid Poll ID</h1>;
-  const poll = usePoll(pollId);
+
+  const poll = usePoll(pollId, { skip: !pollId });
 
   return (
     <PageCenter header={<Navbar />}>
