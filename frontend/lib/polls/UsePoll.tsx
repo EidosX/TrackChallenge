@@ -9,24 +9,24 @@ export interface Poll {
     name: string;
   };
   votesEnd: Date;
-  participations: [
-    {
-      participationId: number;
-      description: string;
-      link: string;
-      title: string;
-      user: {
-        bio: string;
-        name: string;
-        twitchInfo: {
-          twitchNickname: string;
-        };
-        bannerImage: {
-          imageUrl: string | null;
-        };
-      };
-    }
-  ];
+  participations: [PollParticipation];
+}
+
+export interface PollParticipation {
+  participationId: number;
+  description: string;
+  link: string;
+  title: string;
+  user: {
+    bio: string;
+    name: string;
+    twitchInfo: {
+      twitchNickname: string;
+    };
+    bannerImage: {
+      imageUrl: string | null;
+    };
+  };
 }
 
 export enum PollState {
