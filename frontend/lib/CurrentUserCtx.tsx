@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import { Context, createContext, FC, useContext, useEffect, useState } from "react";
+import { Context, createContext, FC, useContext, useEffect } from "react";
 import { useSession } from "./SessionCtx";
 
 export interface CurrentUser {
@@ -14,12 +14,15 @@ export interface CurrentUser {
 const CurrentUserCtx: Context<CurrentUser> = createContext(null);
 
 export const CurrentUserProvider: FC = ({ children }) => {
-  const [session, _] = useSession();
-  const { data } = useQuery(currentUserQuery, {
+  const [session, setSession] = useSession();
+  const { data, error } = useQuery(currentUserQuery, {
     skip: !session,
     context: { headers: { authorization: session } },
   });
 
+  useEffect(() => {
+    if (error?.message === "You are not logged in") setSession(null);
+  }, [error]);
   const currentUser = data?.getMyUser;
 
   return <CurrentUserCtx.Provider value={currentUser}>{children}</CurrentUserCtx.Provider>;
