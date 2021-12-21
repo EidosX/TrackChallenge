@@ -20,8 +20,6 @@ export const usePollResults = (pollId: number, { anonymous = true }): [PollResul
     return () => clearInterval(interval);
   }, [anonymous]);
 
-  console.log(anonymousData.error);
-
   if (anonymous) {
     if (!anonymousData.data?.poll) return null;
     return anonymousData.data.poll.anonymousResults.nodes.map((r) => ({

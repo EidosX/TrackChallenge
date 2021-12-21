@@ -64,6 +64,7 @@ export const usePoll = (pollId: number, { skip }): UsePollRet => {
 const pollQuery = gql`
   query ($pollId: Int!) {
     poll(pollId: $pollId) {
+      id: pollId
       name
       state
       creator {
