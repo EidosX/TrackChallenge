@@ -50,7 +50,7 @@ export const usePoll = (pollId: number, { skip }): UsePollRet => {
     return () => clearInterval(interval);
   }, [data]);
 
-  if (!data) return { data: null, loading };
+  if (!data?.poll) return { data: null, loading };
 
   return {
     loading: false,
