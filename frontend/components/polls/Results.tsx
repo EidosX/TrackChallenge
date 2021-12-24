@@ -38,18 +38,10 @@ const Bar = ({ left, right, width, color, border }) => {
 };
 
 export const Results = ({ poll }: { poll: Poll }) => {
-  const [s, setS] = useState(0);
-  useEffect(() => {
-    const it = setInterval(() => {
-      setS((s) => s + 1);
-    }, 3000);
-    return () => clearInterval(it);
-  }, []);
   const pollResults = usePollResults(poll?.id, {
     anonymous: poll?.state !== "PUBLISHED",
     skip: !poll,
   });
-  if (!poll) return <></>;
   if (!pollResults) return <></>;
 
   const sortedResults = pollResults.sort((a, b) => b.votes - a.votes);
