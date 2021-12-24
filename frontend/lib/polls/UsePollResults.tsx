@@ -1,17 +1,26 @@
 import { gql, useQuery } from "@apollo/client";
 import { useEffect } from "react";
 
-export type PollResult = { votes: number } & (
-  | { hash: string }
-  | { name: string; twitchNickname: string; participationId: number }
-);
+export interface PollResult {
+  votes: number;
+  hash: string;
+  name?: string;
+  twitchNickname?: string;
+  participationId?: number;
+}
 
-export const usePollResults = (pollId: number, { anonymous = true }): [PollResult] => {
+export const usePollResults = (
+  pollId: number,
+  { anonymous = true, skip = false }
+): PollResult[] => {
   const anonymousData = useQuery(pollAnonymousResultsQuery, {
-    skip: !anonymous,
+    skip: !anonymous || skip,
     variables: { id: pollId },
   });
-  const data = useQuery(pollResultsQuery, { skip: anonymous, variables: { id: pollId } });
+  const data = useQuery(pollResultsQuery, {
+    skip: anonymous || skip,
+    variables: { id: pollId },
+  });
   useEffect(() => {
     const interval = setInterval(() => {
       if (anonymous) anonymousData.refetch();
@@ -29,10 +38,11 @@ export const usePollResults = (pollId: number, { anonymous = true }): [PollResul
   } else {
     if (!data.data?.poll) return null;
     return data.data.poll.participations.nodes.map((r) => ({
+      hash: r.hash,
+      votes: r.results,
       name: r.user.name,
       twitchNickname: r.user.twitchInfo.twitchNickname,
       participationId: r.participationId,
-      votes: r.results,
     }));
   }
 };
@@ -56,6 +66,7 @@ const pollResultsQuery = gql`
       participations {
         nodes {
           results
+          hash
           participationId
           user {
             name

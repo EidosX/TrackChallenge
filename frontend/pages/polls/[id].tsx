@@ -36,7 +36,7 @@ export default () => {
           <div className={`h-32 bg-blue-800 ${boxStyle} ${state.current ? "" : "hidden"}`}>
             <HeaderPanel state={state} />
           </div>
-          <div className={`grow bg-slate-900 bg-opacity-50 ${boxStyle}`}>
+          <div className={`grow bg-slate-900 bg-opacity-50 ${boxStyle} relative`}>
             <MainPanel pageState={state} poll={poll.data} />
           </div>
         </div>

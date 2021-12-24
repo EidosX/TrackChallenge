@@ -10,7 +10,7 @@ export interface Poll {
     name: string;
   };
   votesEnd: Date;
-  participations: [PollParticipation];
+  participations: PollParticipation[];
 }
 
 export interface PollParticipation {
