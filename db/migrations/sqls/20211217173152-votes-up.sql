@@ -133,6 +133,23 @@ begin
 end
 $$ language plpgsql stable security definer;
 
+create function tc.participations_hash(_participation tc.participations) returns text as $$
+declare
+  _current_user tc.users;
+  _poll tc.polls;
+begin
+  select * into _poll from tc.polls where poll_id = _participation.poll_id;
+  select * into _current_user from tc.get_my_user_or_null();
+  if _poll.state <> 'published'
+     and rank_value(_current_user.rank) < rank_value('admin')
+     and coalesce(_poll.creator_id <> _current_user.user_id, true)
+  then raise exception 'You are not allowed to see hash-participation matchings yet'; end if;
+  
+  return (select unique_hash from tc_priv.participation_hashs 
+          where participation_id = _participation.participation_id);
+end
+$$ language plpgsql stable security definer;
+
 create function tc_priv.check_no_self_vote() returns trigger as $$
 begin
   if NEW.voter_id = (select user_id from tc.participations where participation_id = NEW.participation_id) then
