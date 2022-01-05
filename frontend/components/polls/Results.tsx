@@ -50,7 +50,14 @@ export const Results = ({ poll }: { poll: Poll }) => {
   return (
     <FlipMove easing="ease" className="flex flex-col gap-2">
       {sortedResults.map((r) => {
-        const left = <p>{r.name ?? "???"}</p>;
+        const left = r.name ? (
+          <div className="flex items-center gap-1">
+            <p>{r.name}</p>
+            <p className="text-xs opacity-50 -bottom-[0.07rem] relative">({r.twitchNickname})</p>
+          </div>
+        ) : (
+          <p>???</p>
+        );
         const right = <p>{r.votes}</p>;
         const i =
           r.hash
