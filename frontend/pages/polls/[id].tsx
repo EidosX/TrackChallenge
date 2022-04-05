@@ -37,7 +37,7 @@ export default () => {
             <HeaderPanel state={state} />
           </div>
           <div className={`grow bg-slate-900 bg-opacity-50 ${boxStyle} relative`}>
-            <MainPanel pageState={state} poll={poll.data} />
+            {poll ? <MainPanel pageState={[state, setState]} poll={poll.data} /> : <></>}
           </div>
         </div>
       </div>
